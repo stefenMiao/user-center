@@ -10,6 +10,9 @@ spring:
     url: jdbc:mysql://localhost:3306/universe?allowPublicKeyRetrieval=true&useSSL=false
     username: root
     password: 12345
+  # session失效时间
+  session:
+    timeout: 864000
 
 mybatis-plus:
   configuration:
