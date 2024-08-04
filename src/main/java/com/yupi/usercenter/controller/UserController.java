@@ -45,6 +45,33 @@ public class UserController {
         return id;
     }
 
+    /**
+     * 通过HTTP GET请求获取当前用户的安全信息
+     * 此方法首先从会话中获取登录用户对象，如果会话中不存在登录用户，则返回null
+     * 如果会话中存在登录用户，将从数据库中加载该用户的信息，并返回一个安全的用户视图
+     *
+     * @param request HTTP请求对象，用于获取会话信息
+     * @return 如果会话中没有登录用户，返回null；否则返回一个安全的用户对象
+     */
+    @GetMapping("/current")
+    public User getCurrentUser(HttpServletRequest request) {
+        // 从会话中获取登录用户状态
+        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
+        // 强制类型转换，将对象转换为User类型
+        User currentUser = (User) userObj;
+        // 检查当前是否有用户登录
+        if (currentUser == null) {
+            return null;
+        }
+        // 获取当前用户的ID
+        Long userId = currentUser.getId();
+        // TODO 校验用户是否合法
+        // 根据用户ID从数据库中获取用户信息
+        User user = userService.getById(userId);
+        // 返回一个安全的用户视图
+        return userService.getSafetyUser(user);
+    }
+
 
     @PostMapping("/login")
     public User userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
@@ -58,6 +85,14 @@ public class UserController {
         }
         User user = userService.userLogin(userAccount, userPassword, request);
         return user;
+    }
+
+    @PostMapping("/logout")
+    public Integer userLogout (HttpServletRequest request) {
+        if (request == null) {
+            return null;
+        }
+        return  userService.userLogout(request);
     }
 
     @GetMapping("/search")
